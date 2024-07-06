@@ -39,6 +39,7 @@ class TestVPPFunctions(unittest.TestCase):
         self.assertIsNone(result)  # Assuming the function doesn't return anything
 
     def test_create_battery(self):
+        create_site(self.vpp_name, self.nmi, self.address)
         result = create_battery(self.nmi, self.manufacturer, self.serial_num, self.capacity)
         self.assertIsNone(result)  # Assuming the function doesn't return anything
 
@@ -47,6 +48,9 @@ class TestVPPFunctions(unittest.TestCase):
         self.assertIsNone(result)  # Assuming the function doesn't return anything
 
     def test_create_report(self):
+        # Setup required for this test to pass
+        create_vpp(self.vpp_name, self.revenue_percentage, self.daily_fee)
+
         report = create_report(self.vpp_name, self.year_month)
         self.assertIsInstance(report, str)
 

@@ -31,6 +31,8 @@ def create_battery(nmi, manufacturer, serial_num, capacity):
         'serial_num': serial_num,
         'capacity': float(capacity)
     }
+# TODO there should be a separate method for adding batteries to sites
+#    part of the create_sites function.
     sites[nmi]['batteries'].append(battery)
     batteries[serial_num] = battery
 
