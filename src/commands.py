@@ -60,11 +60,9 @@ def create_report(vpp_name, year_month):
 
     # Calculate total revenue
     total_revenue = sum(e['energy'] * e['tariff'] for e in monthly_events)
-    print('Total revenue:', total_revenue)
 
     # Calculate VPP revenue
     vpp_revenue = total_revenue * (vpp['revenue_percentage'] / 100)
-    print('VPP revenue: ' + str(vpp_revenue))
 
     # Calculate site revenues
     site_revenues = defaultdict(lambda: {'revenue': 0, 'daily_fees': 0})
@@ -76,10 +74,8 @@ def create_report(vpp_name, year_month):
     for event in monthly_events:
         nmi = event['nmi']
         event_revenue = event['energy'] * event['tariff']
-        vpp_revenue = event_revenue * (vpp['revenue_percentage'] / 100)
-        site_revenues[nmi]['revenue'] += (event_revenue - vpp_revenue) * 0.8  # 80% to the site with the event
-
-    print('The site revenues are ' + str(site_revenues))
+        event_vpp_revenue = event_revenue * (vpp['revenue_percentage'] / 100)
+        site_revenues[nmi]['revenue'] += (event_revenue - event_vpp_revenue) * 0.8  # 80% to the site with the event
 
     # Distribute the remaining 20% based on capacity
     for nmi, site in sites.items():

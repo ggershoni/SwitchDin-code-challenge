@@ -59,12 +59,6 @@ class TestCreateReport(unittest.TestCase):
         for key in expected_keys:
             self.assertIn(key, json_report)
 
-    def test_create_report_length(self):
-        report = create_report(self.vpp_name, self.year_month)
-        json_report = json.loads(report)
-
-        print(json_report)
-
     def test_create_report_values(self):
         report = create_report(self.vpp_name, self.year_month)
         json_report = json.loads(report)
@@ -90,10 +84,8 @@ class TestCreateReport(unittest.TestCase):
     def test_create_report_site_revenue_distribution(self):
         report = create_report(self.vpp_name, self.year_month)
         json_report = json.loads(report)
-        print(json_report)
 
         total_site_revenue = sum(site["revenue"] for site in json_report["site_revenues"])
-        print('Total site revenue: ' + str(total_site_revenue))
         total_capacity = float(self.capacity1) + float(self.capacity2)
 
         for site_revenue in json_report["site_revenues"]:
@@ -101,11 +93,13 @@ class TestCreateReport(unittest.TestCase):
                 # 80% of its own events + 20% distributed by capacity
                 expected_total_revenue = (10.5 * 0.15 + 8.2 * 0.14 + 11.0 * 0.15)
                 vpp_revenue = expected_total_revenue * (int(self.revenue_percentage) / 100)
-                expected_revenue = (0.8 * expected_total_revenue - vpp_revenue) + \
+                expected_revenue = (0.8 * (expected_total_revenue - vpp_revenue)) + \
                                    (0.2 * total_site_revenue * (float(self.capacity1) / total_capacity))
                 self.assertAlmostEqual(site_revenue["revenue"], expected_revenue, places=2)
             elif site_revenue["nmi"] == self.nmi2:
-                expected_revenue = (0.8 * (12.3 * 0.16 + 9.7 * 0.15 + 10.5 * 0.14)) + \
+                expected_total_revenue =(12.3 * 0.16 + 9.7 * 0.15 + 10.5 * 0.14)
+                vpp_revenue = expected_total_revenue * (int(self.revenue_percentage) / 100)
+                expected_revenue = (0.8 * (expected_total_revenue - vpp_revenue)) + \
                                    (0.2 * total_site_revenue * (float(self.capacity2) / total_capacity))
                 self.assertAlmostEqual(site_revenue["revenue"], expected_revenue, places=2)
 
