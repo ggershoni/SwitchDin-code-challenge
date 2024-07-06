@@ -11,7 +11,8 @@ from commands import (
     create_site,
     create_battery,
     import_events,
-    create_report
+    create_report,
+    clear_events
 )
 
 
@@ -42,6 +43,7 @@ class TestCreateReport(unittest.TestCase):
         create_battery(self.nmi2, self.manufacturer, self.serial_num2, self.capacity2)
 
         # Import test events
+        clear_events()
         import_events(self.filename)
 
     def test_create_report_structure(self):
@@ -56,6 +58,12 @@ class TestCreateReport(unittest.TestCase):
         expected_keys = ["vpp_name", "year_month", "total_revenue", "vpp_revenue", "site_revenues"]
         for key in expected_keys:
             self.assertIn(key, json_report)
+
+    def test_create_report_length(self):
+        report = create_report(self.vpp_name, self.year_month)
+        json_report = json.loads(report)
+
+        print(json_report)
 
     def test_create_report_values(self):
         report = create_report(self.vpp_name, self.year_month)
@@ -82,14 +90,18 @@ class TestCreateReport(unittest.TestCase):
     def test_create_report_site_revenue_distribution(self):
         report = create_report(self.vpp_name, self.year_month)
         json_report = json.loads(report)
+        print(json_report)
 
         total_site_revenue = sum(site["revenue"] for site in json_report["site_revenues"])
+        print('Total site revenue: ' + str(total_site_revenue))
         total_capacity = float(self.capacity1) + float(self.capacity2)
 
         for site_revenue in json_report["site_revenues"]:
             if site_revenue["nmi"] == self.nmi1:
                 # 80% of its own events + 20% distributed by capacity
-                expected_revenue = (0.8 * (10.5 * 0.15 + 8.2 * 0.14 + 11.0 * 0.15)) + \
+                expected_total_revenue = (10.5 * 0.15 + 8.2 * 0.14 + 11.0 * 0.15)
+                vpp_revenue = expected_total_revenue * (int(self.revenue_percentage) / 100)
+                expected_revenue = (0.8 * expected_total_revenue - vpp_revenue) + \
                                    (0.2 * total_site_revenue * (float(self.capacity1) / total_capacity))
                 self.assertAlmostEqual(site_revenue["revenue"], expected_revenue, places=2)
             elif site_revenue["nmi"] == self.nmi2:

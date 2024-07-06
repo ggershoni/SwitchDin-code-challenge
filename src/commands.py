@@ -4,6 +4,7 @@ from datetime import datetime
 from collections import defaultdict
 
 # Global dictionaries to store our data
+# This is temp and instead of storing in DB
 vpps = {}
 sites = {}
 batteries = {}
@@ -32,7 +33,6 @@ def create_battery(nmi, manufacturer, serial_num, capacity):
         'capacity': float(capacity)
     }
 # TODO there should be a separate method for adding batteries to sites
-#    part of the create_sites function.
     sites[nmi]['batteries'].append(battery)
     batteries[serial_num] = battery
 
@@ -49,7 +49,8 @@ def import_events(filename):
                 'tariff': float(row['TARIFF'])
             })
 
-
+#TODO year_month should be seperate fields to make parsing easier
+#TODO assuming 28 days per month but specifying calendar month (which don't have 28 days)... broken
 def create_report(vpp_name, year_month):
     vpp = vpps[vpp_name]
     year, month = map(int, year_month.split('-'))
@@ -59,9 +60,11 @@ def create_report(vpp_name, year_month):
 
     # Calculate total revenue
     total_revenue = sum(e['energy'] * e['tariff'] for e in monthly_events)
+    print('Total revenue:', total_revenue)
 
     # Calculate VPP revenue
     vpp_revenue = total_revenue * (vpp['revenue_percentage'] / 100)
+    print('VPP revenue: ' + str(vpp_revenue))
 
     # Calculate site revenues
     site_revenues = defaultdict(lambda: {'revenue': 0, 'daily_fees': 0})
@@ -73,7 +76,10 @@ def create_report(vpp_name, year_month):
     for event in monthly_events:
         nmi = event['nmi']
         event_revenue = event['energy'] * event['tariff']
-        site_revenues[nmi]['revenue'] += event_revenue * 0.8  # 80% to the site with the event
+        vpp_revenue = event_revenue * (vpp['revenue_percentage'] / 100)
+        site_revenues[nmi]['revenue'] += (event_revenue - vpp_revenue) * 0.8  # 80% to the site with the event
+
+    print('The site revenues are ' + str(site_revenues))
 
     # Distribute the remaining 20% based on capacity
     for nmi, site in sites.items():
@@ -98,3 +104,8 @@ def create_report(vpp_name, year_month):
     }
 
     return json.dumps(report)
+
+
+def clear_events():
+    global events
+    events = []
