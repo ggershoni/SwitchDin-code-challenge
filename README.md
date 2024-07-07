@@ -4,14 +4,18 @@ This project implements a simple Virtual Power Plant (VPP) revenue calculator as
 
 ## Project Structure
 ```
-switchdin_vpp/
+SwitchDin-code-challenge/
+│
+├── scripts/
+│   └── (scripts to simplify common operations)
 │
 ├── src/
-│   └── where the code is
+│   └── (where the code is)
 │
 ├── test/
-│   └── tests for checking the code
+│   └── (tests for checking the code)
 │
+├── Dockerfile
 └── README.md
 ```
 
@@ -22,6 +26,28 @@ switchdin_vpp/
 - Add batteries to sites
 - Import discharge events from CSV files
 - Generate revenue-sharing reports for specified VPPs and months
+
+## Quick Start
+
+We've included several scripts to make it easy to get started:
+
+Make sure to make the scripts executable:
+```bash
+chmod +x scripts/*.sh
+```
+
+1. To build the Docker image:
+```bash
+./scripts/build.sh
+```
+2. To run the tests:
+```bash
+./scripts/run-tests.sh
+```
+3. To start an interactive shell in the container:
+```bash
+./scripts/shell.sh
+```
 
 ## Usage
 
@@ -58,6 +84,19 @@ Tests are located in `tests`. To run the tests:
 ```bash
 python -m unittest
 ```
+
+Tests can also be run using the provided script:
+```bash
+./scripts/run-tests.sh
+```
+
+## Development
+
+To make changes to the code:
+
+1. Modify the files in the `test/` and `src/` directories
+2. Rebuild the Docker image using `./scripts/build.sh`
+3. Run the tests using `./scripts/run-tests.sh` to ensure everything still works
 
 ## Future Improvements
 
