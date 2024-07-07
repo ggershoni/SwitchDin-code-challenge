@@ -44,7 +44,10 @@ class TestVPPFunctions(unittest.TestCase):
         self.assertIsNone(result)  # Assuming the function doesn't return anything
 
     def test_import_events(self):
-        result = import_events(self.filename)
+        try:
+            result = import_events(self.filename)
+        except FileNotFoundError:
+            result = import_events(os.path.join('test', self.filename))
         self.assertIsNone(result)  # Assuming the function doesn't return anything
 
     def test_create_report(self):
@@ -70,7 +73,10 @@ class TestVPPFunctions(unittest.TestCase):
         create_vpp(self.vpp_name, self.revenue_percentage, self.daily_fee)
         create_site(self.vpp_name, self.nmi, self.address)
         create_battery(self.nmi, self.manufacturer, self.serial_num, self.capacity)
-        import_events(self.filename)
+        try:
+            import_events(self.filename)
+        except FileNotFoundError:
+            import_events(os.path.join('test', self.filename))
         report = create_report(self.vpp_name, self.year_month)
 
         self.assertIsInstance(report, str)

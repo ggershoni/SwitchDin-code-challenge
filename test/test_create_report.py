@@ -44,7 +44,10 @@ class TestCreateReport(unittest.TestCase):
 
         # Import test events
         clear_events()
-        import_events(self.filename)
+        try:
+            import_events(self.filename)
+        except FileNotFoundError:
+            import_events(os.path.join('test', self.filename))
 
     def test_create_report_structure(self):
         report = create_report(self.vpp_name, self.year_month)
